@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+  }
+  .container .voting {
+    display: flex;
+    flex-direction: column;
+  }
+  .container .voting button {
+    height: 25px;
+    width: 40px;
+    border-radius: 25%;
+  }
