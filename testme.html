@@ -1,0 +1,94 @@
+<style>
+  .container {
+    display: flex;
+  }
+  .container .voting {
+    display: flex;
+    flex-direction: column;
+  }
+  .container .voting button {
+    height: 25px;
+    width: 40px;
+    border-radius: 25%;
+  }
+</style>
+<div class="container">
+  <div class="voting">
+    <label for="idea1">Jay-Z</label>
+    <button id="idea1">VOTE!</button>
+    <label id="votecount_idea1"></label>
+  </div>
+  <div class="voting">
+    <label for="idea2">Alan Jackson</label>
+    <button id="idea2">VOTE!</button>
+    <label id="votecount_idea2"></label>
+  </div>
+  <div class="voting">
+    <label for="idea3">Goofy</label>
+    <button id="idea3">VOTE!</button>
+    <label id="votecount_idea3"></label>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/5.5.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAx6-Uf6XelwwNdQ8uHxq8xunBB9QuEKDc",
+    authDomain: "hackricechatter.firebaseapp.com",
+    databaseURL: "https://hackricechatter.firebaseio.com",
+    projectId: "hackricechatter",
+    storageBucket: "hackricechatter.appspot.com",
+    messagingSenderId: "678522738824"
+  };
+  let fb = firebase.initializeApp(config);
+  refreshAllVotes();
+  document.querySelectorAll('button')
+    .forEach((val, idx)=>{
+      val.onclick = (e)=>{
+        // Push a vote
+        getCurrentVote(e.target.id)
+        .then(snapshot =>  {
+          let currentVoteValue = snapshot.val();
+          currentVoteValue++;
+          pushNewVote(e.target.id, currentVoteValue)
+            .then(_=>refreshAllVotes());
+
+        });
+      }
+    })
+
+  function refreshAllVotes(){
+    // Get Db ref
+    fb.database()
+      // Get entire Db contents
+      .ref()
+      .once('value')
+      .then((snapshot) => {
+        
+        let entireDbAsJson = snapshot.val();
+        Object.keys(entireDbAsJson)
+          .forEach(val=>{
+            let btn = document.querySelector(`#votecount_${val}`)
+            btn.innerHTML = entireDbAsJson[val];
+          })
+
+        return null;
+      });
+  }
+
+  function getCurrentVote(voteOptionName){
+    // Get Db ref
+    return fb.database()
+      // Get entire Db contents
+      .ref(voteOptionName)
+      .once('value');
+  }
+
+  function pushNewVote(voteOptionName, currentVoteValue){
+    return fb.database()
+      // Get entire Db contents
+      .ref(voteOptionName)
+      .set(currentVoteValue);
+  }
+</script>
